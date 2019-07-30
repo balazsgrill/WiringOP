@@ -1,0 +1,28 @@
+stages:
+  - test
+  - build
+  - deploy
+
+compile:opiz:
+  stage: build
+  script:
+    - make
+  artifacts:
+    paths:
+      - wiringPi/libwiringPi.so.2.0
+      - devLib/libwiringPiDev.so.2.0
+  tags:
+    - grill-tamasi
+    - opiz
+
+deploy:opiz:
+  stage: deploy
+  dependencies: 
+    - compile:opiz
+  script:
+    - curl --user repository:$DAV_PASS --anyauth -T $CI_PROJECT_DIR/wiringPi/libwiringPi.so.2.0 $DAV_URL
+    - curl --user repository:$DAV_PASS --anyauth -T $CI_PROJECT_DIR/devLib/libwiringPiDev.so.2.0 $DAV_URL
+  only:
+    - h3
+  tags:
+    - grill-tamasi
